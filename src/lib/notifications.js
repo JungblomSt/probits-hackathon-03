@@ -1,0 +1,103 @@
+import * as Notifications from 'expo-notifications';
+import { Platform } from 'react-native';
+
+import { addDays, dayDate, formatTime } from './week';
+
+const CHANNEL_ID = 'paminnelser';
+
+// Visa notiser även när appen är öppen
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowBanner: true,
+    shouldShowList: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
+
+export async function setupNotificationChannel() {
+  if (Platform.OS !== 'android') return;
+  await Notifications.setNotificationChannelAsync(CHANNEL_ID, {
+    name: 'Påminnelser',
+    importance: Notifications.AndroidImportance.HIGH,
+  });
+}
+
+export async function hasNotificationPermission() {
+  const { granted } = await Notifications.getPermissionsAsync();
+  return granted;
+}
+
+export async function askNotificationPermission() {
+  const current = await Notifications.getPermissionsAsync();
+  if (current.granted) return true;
+  if (!current.canAskAgain) return false;
+  const { granted } = await Notifications.requestPermissionsAsync();
+  return granted;
+}
+
+function at(date, hour, minute) {
+  const d = new Date(date);
+  d.setHours(hour, minute, 0, 0);
+  return d;
+}
+
+/*
+  Bygger om alla schemalagda notiser utifrån aktuell vecka.
+  Enklast och säkrast: rensa allt och lägg upp på nytt varje gång veckan ändras.
+*/
+export async function syncReminders(week, settings) {
+  if (!week) return;
+  if (!(await hasNotificationPermission())) return;
+
+  await Notifications.cancelAllScheduledNotificationsAsync();
+  const now = new Date();
+  const jobs = [];
+
+  const schedule = (date, title, body) => {
+    if (date <= now) return;
+    jobs.push(
+      Notifications.scheduleNotificationAsync({
+        content: { title, body },
+        trigger: {
+          type: Notifications.SchedulableTriggerInputTypes.DATE,
+          date,
+          channelId: CHANNEL_ID,
+        },
+      })
+    );
+  };
+
+  for (const a of week.activities) {
+    if (!a.reminder || a.done) continue;
+    const day = dayDate(week, a.weekday);
+    const { hour, minute, eveningBefore } = a.reminder;
+
+    schedule(
+      at(day, hour, minute),
+      `Dags för ${a.title.toLowerCase()}`,
+      a.mode === 'steps'
+        ? `Mål idag: ${a.stepGoal} steg. Bockas av automatiskt när du är i mål.`
+        : `${a.durationMin} min · ${a.difficulty}. Glöm inte att bocka av!`
+    );
+
+    if (eveningBefore) {
+      schedule(
+        at(addDays(day, -1), settings.eveningBeforeHour, 0),
+        `Imorgon: ${a.title}`,
+        `Påminnelse kl ${formatTime(hour, minute)}. Packa det du behöver redan ikväll.`
+      );
+    }
+  }
+
+  // Söndag kväll: dags att utvärdera veckan
+  if (settings.evaluationReminder) {
+    schedule(
+      at(dayDate(week, 6), 19, 0),
+      `Vecka ${week.number} är snart slut`,
+      'Hur gick det? Utvärdera och planera nästa vecka.'
+    );
+  }
+
+  await Promise.all(jobs);
+}
