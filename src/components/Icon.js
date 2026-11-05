@@ -47,6 +47,7 @@ const shapes = {
       <Path d="M12 7v5l3 2" stroke={c} />
     </>
   ),
+  share: (c) => <Path d="M12 15V3M7.5 7.5L12 3l4.5 4.5M5 12v8h14v-8" stroke={c} />,
   trash: (c) => <Path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" stroke={c} />,
 };
 
