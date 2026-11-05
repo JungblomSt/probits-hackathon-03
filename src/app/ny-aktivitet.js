@@ -37,6 +37,7 @@ export default function ActivityForm() {
 
   const existing = params.id ? week?.activities.find((a) => a.id === params.id) : null;
   const editing = !!existing;
+  const stepsAllowed = existing ? existing.stepsAllowed !== false : params.mode !== 'manual';
 
   const [title, setTitle] = useState(existing?.title ?? params.title ?? '');
   const [days, setDays] = useState(existing ? [existing.weekday] : [weekdayIndex(new Date())]);
@@ -75,6 +76,7 @@ export default function ActivityForm() {
       difficulty,
       mode,
       stepGoal,
+      stepsAllowed,
       reminder: reminderAllowed ? { ...time, eveningBefore } : null,
     };
 
@@ -154,6 +156,7 @@ export default function ActivityForm() {
               onModeChange={setMode}
               stepGoal={stepGoal}
               onStepGoalChange={setStepGoal}
+              stepsAllowed={stepsAllowed}
             />
           </View>
 

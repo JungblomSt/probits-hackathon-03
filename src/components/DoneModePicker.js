@@ -3,13 +3,15 @@ import { formatSteps } from '../lib/week';
 import { colors, type } from '../theme';
 import { Stepper } from './ui';
 
-function RadioOption({ selected, onPress, title, description, children }) {
+// Ett alternativ med radioknapp. children visas under texten när det är valt
+function RadioOption({ selected, onPress, title, description, disabled, children }) {
   return (
     <Pressable
       accessibilityRole="radio"
-      accessibilityState={{ checked: selected }}
+      accessibilityState={{ checked: selected, disabled }}
       onPress={onPress}
-      style={[styles.option, selected && styles.optionOn]}
+      disabled={disabled}
+      style={[styles.option, selected && styles.optionOn, disabled && { opacity: 0.4 }]}
     >
       <View style={[styles.radio, selected && styles.radioOn]} />
       <View style={{ flex: 1, gap: 4 }}>
@@ -21,14 +23,25 @@ function RadioOption({ selected, onPress, title, description, children }) {
   );
 }
 
-export default function DoneModePicker({ mode, onModeChange, stepGoal, onStepGoalChange }) {
+export default function DoneModePicker({
+  mode,
+  onModeChange,
+  stepGoal,
+  onStepGoalChange,
+  stepsAllowed = true,
+}) {
   return (
     <>
       <RadioOption
         selected={mode === 'steps'}
         onPress={() => onModeChange('steps')}
         title="Automatiskt via stegräknaren"
-        description="Markeras klar när du nått stegmålet den dagen."
+        description={
+          stepsAllowed
+            ? 'Markeras klar när du nått stegmålet den dagen.'
+            : 'Den här aktiviteten ger inga steg, så du bockar av den själv.'
+        }
+        disabled={!stepsAllowed}
       >
         <View style={{ marginTop: 6 }}>
           <Stepper
