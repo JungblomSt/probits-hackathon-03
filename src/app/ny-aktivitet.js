@@ -48,7 +48,7 @@ export default function ActivityForm() {
   const [stepGoal, setStepGoal] = useState(
     existing?.stepGoal ?? (params.stepGoal ? Number(params.stepGoal) : 4000)
   );
-  const [reminderOn, setReminderOn] = useState(existing ? !!existing.reminder : true);
+  const [reminderOn, setReminderOn] = useState(existing ? !!existing.reminder : false);
   const [time, setTime] = useState(existing?.reminder ?? { hour: 17, minute: 30 });
   const [eveningBefore, setEveningBefore] = useState(existing?.reminder?.eveningBefore ?? false);
 
