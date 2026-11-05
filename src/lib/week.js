@@ -55,12 +55,8 @@ export function dayDate(week, weekday) {
   return addDays(new Date(week.start), weekday);
 }
 
-export function weekEnd(week) {
-  return addDays(new Date(week.start), 7);
-}
-
 export function isWeekOver(week, now = new Date()) {
-  return now >= weekEnd(week);
+  return now >= addDays(new Date(week.start), 7);
 }
 
 export function weekRangeLabel(week) {

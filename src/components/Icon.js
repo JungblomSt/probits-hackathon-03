@@ -49,12 +49,6 @@ const shapes = {
       <Path d="M12 2v3M12 19v3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1L7 17M17 7l2.1-2.1" stroke={c} />
     </>
   ),
-  clock: (c) => (
-    <>
-      <Circle cx="12" cy="12" r="9" stroke={c} />
-      <Path d="M12 7v5l3 2" stroke={c} />
-    </>
-  ),
   trash: (c) => <Path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" stroke={c} />,
 };
 

@@ -1,10 +1,10 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import Icon from '../components/Icon';
-import { Button, ChoiceRow, Label, Stepper } from '../components/ui';
+import { Button, ChoiceRow, Label, Stepper, SwitchRow } from '../components/ui';
 import { WEEKDAYS, addDays, dateKey, dayDate, formatSteps, isWeekOver, isoWeek } from '../lib/week';
 import { useCurrentWeek, useStore } from '../store/useStore';
 import { colors, radius, type } from '../theme';
@@ -20,20 +20,6 @@ function Stat({ value, label, accent }) {
     <View style={styles.stat}>
       <Text style={[styles.statValue, accent && { color: colors.accent }]}>{value}</Text>
       <Text style={type.small}>{label}</Text>
-    </View>
-  );
-}
-
-function ToggleRow({ label, value, onChange }) {
-  return (
-    <View style={styles.toggleRow}>
-      <Text style={{ fontSize: 14, color: colors.ink, flex: 1 }}>{label}</Text>
-      <Switch
-        value={value}
-        onValueChange={onChange}
-        trackColor={{ true: colors.accent, false: colors.lineStrong }}
-        thumbColor="#FFFFFF"
-      />
     </View>
   );
 }
@@ -135,9 +121,9 @@ export default function EvaluationScreen() {
               <Stepper label="antal pass" value={planned} onChange={setPlanned} min={1} max={14} />
             </View>
           </View>
-          <ToggleRow label="Behåll samma aktiviteter och dagar" value={keep} onChange={setKeep} />
+          <SwitchRow label="Behåll samma aktiviteter och dagar" value={keep} onChange={setKeep} />
           {keep && hasStepActivities && (
-            <ToggleRow label="Höj stegmålen med 10 %" value={raiseGoals} onChange={setRaiseGoals} />
+            <SwitchRow label="Höj stegmålen med 10 %" value={raiseGoals} onChange={setRaiseGoals} />
           )}
           {keep && (
             <Text style={type.small}>Du kan flytta, ändra eller ta bort pass i veckovyn efteråt.</Text>
@@ -177,6 +163,5 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   adjustTitle: { fontSize: 18, fontWeight: '700', color: colors.accentDark },
-  toggleRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   footer: { paddingHorizontal: 20, paddingTop: 8, paddingBottom: 12, borderRadius: radius.lg },
 });

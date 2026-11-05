@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Switch, Text, View } from 'react-native';
 
 import { colors, radius, type } from '../theme';
 import Icon from './Icon';
@@ -24,17 +24,17 @@ export function Button({ title, onPress, variant = 'primary', icon, style, disab
   );
 }
 
-export function IconButton({ icon, onPress, label, color = colors.ink, style }) {
+export function SwitchRow({ label, value, onChange, labelStyle }) {
   return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={label}
-      onPress={onPress}
-      hitSlop={8}
-      style={({ pressed }) => [styles.iconButton, pressed && { opacity: 0.6 }, style]}
-    >
-      <Icon name={icon} color={color} />
-    </Pressable>
+    <View style={styles.switchRow}>
+      <Text style={[styles.switchLabel, labelStyle]}>{label}</Text>
+      <Switch
+        value={value}
+        onValueChange={onChange}
+        trackColor={{ true: colors.accent, false: colors.lineStrong }}
+        thumbColor="#FFFFFF"
+      />
+    </View>
   );
 }
 
@@ -127,7 +127,8 @@ const styles = StyleSheet.create({
   buttonPrimary: { backgroundColor: colors.accent },
   buttonOutline: { backgroundColor: colors.card, borderWidth: 1.5, borderColor: colors.ink },
   buttonText: { fontSize: 16, fontWeight: '600' },
-  iconButton: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
+  switchRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  switchLabel: { flex: 1, fontSize: 14, color: colors.ink },
   row: { flexDirection: 'row', gap: 8 },
   choice: {
     flex: 1,

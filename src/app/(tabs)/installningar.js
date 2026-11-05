@@ -1,9 +1,9 @@
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { Alert, Linking, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { Alert, Linking, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Button, Card, Label, Stepper } from '../../components/ui';
+import { Button, Card, Label, Stepper, SwitchRow } from '../../components/ui';
 import { askNotificationPermission, hasNotificationPermission } from '../../lib/notifications';
 import { formatTime } from '../../lib/week';
 import { useStore } from '../../store/useStore';
@@ -84,15 +84,12 @@ export default function SettingsScreen() {
               />
             </View>
           </View>
-          <View style={styles.row}>
-            <Text style={[styles.text, { flex: 1 }]}>Påminn om utvärdering söndag 19:00</Text>
-            <Switch
-              value={settings.evaluationReminder}
-              onValueChange={(v) => updateSettings({ evaluationReminder: v })}
-              trackColor={{ true: colors.accent, false: colors.lineStrong }}
-              thumbColor="#FFFFFF"
-            />
-          </View>
+          <SwitchRow
+            label="Påminn om utvärdering söndag 19:00"
+            labelStyle={{ fontSize: 15 }}
+            value={settings.evaluationReminder}
+            onChange={(v) => updateSettings({ evaluationReminder: v })}
+          />
         </Card>
 
         <Button title="Rensa all data" variant="outline" onPress={confirmReset} />

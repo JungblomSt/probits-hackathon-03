@@ -2,75 +2,18 @@ import { router } from 'expo-router';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import ActivityRow from '../../components/ActivityRow';
 import Icon from '../../components/Icon';
 import { Button } from '../../components/ui';
 import {
-  WEEKDAYS,
   dateKey,
   dayDate,
   formatSteps,
-  formatTime,
   isWeekOver,
   weekRangeLabel,
 } from '../../lib/week';
 import { useCurrentWeek, useStore } from '../../store/useStore';
 import { colors, radius, type } from '../../theme';
-
-function metaText(a, isToday, stepsThatDay) {
-  if (a.done?.source === 'auto') return `Klar automatiskt · ${formatSteps(a.done.steps ?? a.stepGoal)} steg`;
-  if (a.done) return 'Markerad klar själv';
-  const parts = [];
-  if (isToday) parts.push('Idag');
-  if (a.mode === 'steps') {
-    parts.push(
-      isToday
-        ? `${formatSteps(stepsThatDay)} / ${formatSteps(a.stepGoal)} steg`
-        : `Stegmål ${formatSteps(a.stepGoal)}`
-    );
-  } else {
-    parts.push(`${a.durationMin} min · ${a.difficulty}`);
-  }
-  if (a.reminder) parts.push(`Påminnelse ${formatTime(a.reminder.hour, a.reminder.minute)}`);
-  return parts.join(' · ');
-}
-
-function ActivityRow({ activity, week, todayKey, stepsByDay, onToggle }) {
-  const day = dayDate(week, activity.weekday);
-  const key = dateKey(day);
-  const isToday = key === todayKey;
-  const highlight = isToday && !activity.done;
-
-  return (
-    <Pressable
-      onPress={() => router.push({ pathname: '/ny-aktivitet', params: { id: activity.id } })}
-      style={[styles.row, highlight && styles.rowToday]}
-      accessibilityHint="Öppnar aktiviteten för redigering"
-    >
-      <View style={styles.dayCol}>
-        <Text style={styles.dayName}>{WEEKDAYS[activity.weekday]}</Text>
-        <Text style={styles.dayNum}>{day.getDate()}</Text>
-      </View>
-      <View style={{ flex: 1, gap: 3 }}>
-        <Text style={styles.rowTitle} numberOfLines={1}>
-          {activity.title}
-        </Text>
-        <Text style={type.small} numberOfLines={1}>
-          {metaText(activity, isToday, stepsByDay[key] ?? 0)}
-        </Text>
-      </View>
-      <Pressable
-        accessibilityRole="checkbox"
-        accessibilityState={{ checked: !!activity.done }}
-        accessibilityLabel={activity.done ? 'Klar – tryck för att ångra' : 'Markera som klar'}
-        onPress={() => onToggle(activity.id)}
-        hitSlop={6}
-        style={[styles.check, activity.done && styles.checkDone]}
-      >
-        {activity.done && <Icon name="check" size={20} color="#FFFFFF" strokeWidth={2.4} />}
-      </Pressable>
-    </Pressable>
-  );
-}
 
 export default function WeekScreen() {
   const week = useCurrentWeek();
@@ -238,32 +181,6 @@ const styles = StyleSheet.create({
     alignItems: 'baseline',
   },
   link: { color: colors.accent, fontSize: 14, fontWeight: '600' },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    borderRadius: 16,
-    backgroundColor: colors.card,
-    borderWidth: 1,
-    borderColor: colors.line,
-  },
-  rowToday: { borderWidth: 2, borderColor: colors.today },
-  dayCol: { width: 40, alignItems: 'center' },
-  dayName: { fontSize: 11, fontWeight: '600', color: colors.muted, textTransform: 'uppercase' },
-  dayNum: { fontSize: 20, fontWeight: '700', color: colors.ink },
-  rowTitle: { fontSize: 15, fontWeight: '600', color: colors.ink },
-  check: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    borderWidth: 2,
-    borderColor: '#C3C9BD',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  checkDone: { backgroundColor: colors.accent, borderColor: colors.accent },
   empty: { ...type.small, fontSize: 14, textAlign: 'center', paddingVertical: 12 },
   bottomBar: {
     flexDirection: 'row',
