@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '../../components/ui';
 import { availableMonths, buildMonthReport, monthKey, monthLabel } from '../../lib/coachReport';
-import { dateKey, dayDate, formatSteps, weekRangeLabel } from '../../lib/week';
+import { dateKey, dayDate, formatSteps, isWeekOver, weekRangeLabel } from '../../lib/week';
 import { useStore } from '../../store/useStore';
 import { colors, radius, type } from '../../theme';
 
@@ -140,8 +140,10 @@ export default function HistoryScreen() {
                 <Text style={styles.sentStatus}>
                   ✓ Skickad till coach · {new Date(w.sentToCoachAt).toLocaleDateString('sv-SE')}
                 </Text>
-              ) : (
+              ) : isWeekOver(w) ? (
                 <Button title="Skicka till coach" onPress={() => sendWeekToCoach(w.id)} />
+              ) : (
+                <Text style={type.small}>Du kan skicka veckan till coachen när den är slut.</Text>
               )}
             </View>
           );
