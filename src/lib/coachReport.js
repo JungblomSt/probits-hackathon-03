@@ -103,7 +103,7 @@ export function buildMonthReport(weeks, stepsByDay, { year, month }) {
     for (const r of weekRows) {
       const w = r.week;
       lines.push('');
-      let head = `Vecka ${w.number} (${weekRangeLabel(w)}): ${r.done} av ${w.plannedSessions} pass`;
+      let head = `Vecka ${w.number} (${weekRangeLabel(w)}): rört mig ${r.done} gånger`;
       if (w.evaluation) head += ` · kändes ${FEELING_TEXT[w.evaluation.feeling]}`;
       lines.push(head);
       const acts = [...w.activities].sort((a, b) => a.weekday - b.weekday);

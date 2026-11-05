@@ -89,7 +89,7 @@ function CoachCard({ weeks, stepsByDay }) {
         style={styles.input}
       />
 
-      <Button title="Dela månaden" icon="share" onPress={share} />
+      <Button title="Dela" icon="share" variant="outline" onPress={share} />
       <Text style={styles.coachHint}>
         Du väljer själv hur du skickar, till exempel sms eller mejl. Inget delas förrän du trycker.
       </Text>
@@ -141,7 +141,7 @@ export default function HistoryScreen() {
                   ✓ Skickad till coach · {new Date(w.sentToCoachAt).toLocaleDateString('sv-SE')}
                 </Text>
               ) : (
-                <Button title="Skicka till coach" variant="outline" onPress={() => sendWeekToCoach(w.id)} />
+                <Button title="Skicka till coach" onPress={() => sendWeekToCoach(w.id)} />
               )}
             </View>
           );
