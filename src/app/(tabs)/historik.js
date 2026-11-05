@@ -103,6 +103,13 @@ export default function HistoryScreen() {
   const stepsByDay = useStore((s) => s.stepsByDay);
   const sendWeekToCoach = useStore((s) => s.sendWeekToCoach);
 
+  // Pågående vecka: fråga först, eftersom coachen bara ser det som hänt hittills
+  const confirmEarlySend = (w) =>
+    Alert.alert('Veckan pågår', 'Coachen får bara se det du gjort hittills. Vill du skicka ändå?', [
+      { text: 'Avbryt', style: 'cancel' },
+      { text: 'Skicka', onPress: () => sendWeekToCoach(w.id) },
+    ]);
+
   const list = Object.values(weeks).sort((a, b) => (a.start < b.start ? 1 : -1));
 
   return (
@@ -143,7 +150,10 @@ export default function HistoryScreen() {
               ) : isWeekOver(w) ? (
                 <Button title="Skicka till coach" onPress={() => sendWeekToCoach(w.id)} />
               ) : (
-                <Text style={type.small}>Du kan skicka veckan till coachen när den är slut.</Text>
+                <>
+                  <Text style={type.small}>Veckan pågår. Bäst är att skicka den när den är slut.</Text>
+                  <Button title="Skicka ändå" variant="outline" onPress={() => confirmEarlySend(w)} />
+                </>
               )}
             </View>
           );
