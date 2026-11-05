@@ -17,9 +17,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import Icon from '../components/Icon';
 import ScreenHeader from '../components/ScreenHeader';
+import DayPicker from '../components/DayPicker';
 import { Button, Card, Label, Segmented, Stepper } from '../components/ui';
 import { ensureNotificationPermission } from '../lib/notifications';
-import { WEEKDAY_LETTERS, WEEKDAYS, formatSteps, formatTime, weekdayIndex } from '../lib/week';
+import { formatSteps, formatTime, weekdayIndex } from '../lib/week';
 import { useCurrentWeek, useStore } from '../store/useStore';
 import { DIFFICULTIES, colors, radius, type } from '../theme';
 
@@ -148,22 +149,7 @@ export default function ActivityForm() {
 
           <View style={styles.field}>
             <Label>{editing ? 'Dag' : 'Dag (välj en eller flera)'}</Label>
-            <View style={styles.days}>
-              {WEEKDAY_LETTERS.map((letter, i) => {
-                const on = days.includes(i);
-                return (
-                  <Pressable
-                    key={i}
-                    accessibilityLabel={WEEKDAYS[i]}
-                    accessibilityState={{ selected: on }}
-                    onPress={() => toggleDay(i)}
-                    style={[styles.day, on && styles.dayOn]}
-                  >
-                    <Text style={[styles.dayText, on && { color: '#FFFFFF' }]}>{letter}</Text>
-                  </Pressable>
-                );
-              })}
-            </View>
+            <DayPicker selected={days} onToggle={toggleDay} />
           </View>
 
           <View style={styles.twoCol}>
@@ -288,19 +274,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.ink,
   },
-  days: { flexDirection: 'row', gap: 6 },
-  day: {
-    flex: 1,
-    height: 44,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.lineStrong,
-    backgroundColor: colors.card,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  dayOn: { backgroundColor: colors.accent, borderColor: colors.accent },
-  dayText: { fontSize: 13, fontWeight: '600', color: colors.ink },
   twoCol: { flexDirection: 'row', gap: 12 },
   option: {
     flexDirection: 'row',
