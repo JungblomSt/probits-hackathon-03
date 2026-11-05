@@ -1,4 +1,3 @@
-import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import {
@@ -8,8 +7,6 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  Switch,
-  Text,
   TextInput,
   View,
 } from 'react-native';
@@ -19,11 +16,12 @@ import Icon from '../components/Icon';
 import ScreenHeader from '../components/ScreenHeader';
 import DayPicker from '../components/DayPicker';
 import DoneModePicker from '../components/DoneModePicker';
-import { Button, Card, Label, Segmented, Stepper } from '../components/ui';
+import ReminderCard from '../components/ReminderCard';
+import { Button, Label, Segmented, Stepper } from '../components/ui';
 import { ensureNotificationPermission } from '../lib/notifications';
-import { formatTime, weekdayIndex } from '../lib/week';
+import { weekdayIndex } from '../lib/week';
 import { useCurrentWeek, useStore } from '../store/useStore';
-import { DIFFICULTIES, colors, radius, type } from '../theme';
+import { DIFFICULTIES, colors, radius } from '../theme';
 
 /*
   Skapar ny aktivitet, eller redigerar om ?id= skickas med.
@@ -53,31 +51,12 @@ export default function ActivityForm() {
   const [reminderOn, setReminderOn] = useState(existing ? !!existing.reminder : true);
   const [time, setTime] = useState(existing?.reminder ?? { hour: 17, minute: 30 });
   const [eveningBefore, setEveningBefore] = useState(existing?.reminder?.eveningBefore ?? false);
-  const [showIosPicker, setShowIosPicker] = useState(false);
 
   if (!week) return null;
 
   const toggleDay = (i) => {
     if (editing) return setDays([i]); // en aktivitet = en dag
     setDays((d) => (d.includes(i) ? d.filter((x) => x !== i) : [...d, i].sort()));
-  };
-
-  const pickerDate = () => {
-    const d = new Date();
-    d.setHours(time.hour, time.minute, 0, 0);
-    return d;
-  };
-
-  const onPickTime = (_event, date) => {
-    if (date) setTime({ hour: date.getHours(), minute: date.getMinutes() });
-  };
-
-  const openTimePicker = () => {
-    if (Platform.OS === 'android') {
-      DateTimePickerAndroid.open({ value: pickerDate(), mode: 'time', is24Hour: true, onChange: onPickTime });
-    } else {
-      setShowIosPicker((v) => !v);
-    }
   };
 
   const toggleReminder = async (on) => {
@@ -178,47 +157,15 @@ export default function ActivityForm() {
             />
           </View>
 
-          <Card style={{ gap: 12 }}>
-            <View style={styles.reminderHead}>
-              <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
-                <Icon name="bell" size={20} color={colors.today} />
-                <Text style={styles.optionTitle}>Påminnelse</Text>
-              </View>
-              <Switch
-                value={reminderOn}
-                onValueChange={toggleReminder}
-                trackColor={{ true: colors.accent, false: colors.lineStrong }}
-                thumbColor="#FFFFFF"
-              />
-            </View>
-            {reminderOn && (
-              <>
-                <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>
-                  <Pressable onPress={openTimePicker} style={[styles.pill, styles.pillTime]}>
-                    <Text style={styles.pillTimeText}>{formatTime(time.hour, time.minute)}</Text>
-                  </Pressable>
-                  <Pressable
-                    onPress={() => setEveningBefore((v) => !v)}
-                    accessibilityState={{ selected: eveningBefore }}
-                    style={[styles.pill, eveningBefore && styles.pillOn]}
-                  >
-                    <Text style={[styles.pillText, eveningBefore && { color: colors.accentDark }]}>
-                      {eveningBefore ? '✓ ' : '+ '}Kvällen innan {formatTime(settings.eveningBeforeHour, 0)}
-                    </Text>
-                  </Pressable>
-                </View>
-                {showIosPicker && Platform.OS === 'ios' && (
-                  <DateTimePicker
-                    value={pickerDate()}
-                    mode="time"
-                    display="spinner"
-                    onChange={onPickTime}
-                    locale="sv-SE"
-                  />
-                )}
-              </>
-            )}
-          </Card>
+          <ReminderCard
+            enabled={reminderOn}
+            onToggle={toggleReminder}
+            time={time}
+            onTimeChange={setTime}
+            eveningBefore={eveningBefore}
+            onEveningBeforeChange={setEveningBefore}
+            eveningBeforeHour={settings.eveningBeforeHour}
+          />
         </ScrollView>
       </KeyboardAvoidingView>
 
@@ -244,12 +191,5 @@ const styles = StyleSheet.create({
     color: colors.ink,
   },
   twoCol: { flexDirection: 'row', gap: 12 },
-  optionTitle: { fontSize: 15, fontWeight: '600', color: colors.ink },
-  reminderHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  pill: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 12, backgroundColor: colors.soft },
-  pillOn: { backgroundColor: colors.accentSoft },
-  pillText: { fontSize: 14, color: colors.ink },
-  pillTime: { backgroundColor: colors.todaySoft },
-  pillTimeText: { fontSize: 14, fontWeight: '600', color: colors.todayText },
   footer: { paddingHorizontal: 20, paddingTop: 8, paddingBottom: 12 },
 });
