@@ -1,13 +1,15 @@
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import Icon from '../components/Icon';
+import ScreenHeader from '../components/ScreenHeader';
 import { Button, ChoiceRow, Label } from '../components/ui';
 import { TIME_OPTIONS, filterSuggestions, shuffle } from '../data/suggestions';
 import { formatSteps } from '../lib/week';
 import { DIFFICULTIES, colors, radius } from '../theme';
+
 
 export default function RandomScreen() {
   const [time, setTime] = useState(20);
@@ -41,13 +43,7 @@ export default function RandomScreen() {
 
   return (
     <SafeAreaView style={styles.screen}>
-      <View style={styles.header}>
-        <Pressable accessibilityLabel="Stäng" onPress={() => router.back()} style={styles.headerBtn}>
-          <Icon name="close" strokeWidth={2} />
-        </Pressable>
-        <Text style={styles.headerTitle}>Slumpa aktivitet</Text>
-        <View style={styles.headerBtn} />
-      </View>
+      <ScreenHeader title="Slumpa aktivitet" icon="close" />
 
       <View style={styles.filters}>
         <View style={{ gap: 8 }}>
@@ -113,15 +109,6 @@ export default function RandomScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 12,
-    paddingTop: 8,
-  },
-  headerBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
-  headerTitle: { fontSize: 20, fontWeight: '700', color: colors.ink },
   filters: { paddingHorizontal: 20, paddingTop: 8, gap: 16 },
   cardWrap: { flex: 1, paddingHorizontal: 20, paddingTop: 22 },
   card: { flex: 1, borderRadius: radius.xl, backgroundColor: colors.ink, padding: 24, gap: 14 },
