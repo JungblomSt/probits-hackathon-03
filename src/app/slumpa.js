@@ -45,7 +45,7 @@ export default function RandomScreen() {
         <Pressable accessibilityLabel="Stäng" onPress={() => router.back()} style={styles.headerBtn}>
           <Icon name="close" strokeWidth={2} />
         </Pressable>
-        <Text style={styles.headerTitle}>Slumpa aktivitet</Text>
+        <Text style={styles.headerTitle}>Förslag på aktivitet</Text>
         <View style={styles.headerBtn} />
       </View>
 
@@ -98,7 +98,7 @@ export default function RandomScreen() {
 
       <View style={styles.footer}>
         <Button
-          title="Slumpa igen"
+          title="Nytt förslag"
           icon="dice"
           variant="outline"
           style={{ flex: 1 }}

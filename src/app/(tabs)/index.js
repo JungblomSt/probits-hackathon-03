@@ -177,7 +177,7 @@ export default function WeekScreen() {
 
       <View style={styles.bottomBar}>
         <Button
-          title="Slumpa aktivitet"
+          title="Förslag på aktivitet"
           icon="dice"
           variant="outline"
           style={{ flex: 1, height: 52 }}
