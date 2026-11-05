@@ -16,6 +16,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import Icon from '../components/Icon';
+import ScreenHeader from '../components/ScreenHeader';
 import { Button, Card, Label, Segmented, Stepper } from '../components/ui';
 import { askNotificationPermission } from '../lib/notifications';
 import { WEEKDAY_LETTERS, WEEKDAYS, formatSteps, formatTime, weekdayIndex } from '../lib/week';
@@ -123,19 +124,16 @@ export default function ActivityForm() {
 
   return (
     <SafeAreaView style={styles.screen}>
-      <View style={styles.header}>
-        <Pressable accessibilityLabel="Tillbaka" onPress={() => router.back()} style={styles.headerBtn}>
-          <Icon name="back" strokeWidth={2} />
-        </Pressable>
-        <Text style={type.h2}>{editing ? 'Redigera aktivitet' : 'Ny aktivitet'}</Text>
-        {editing ? (
-          <Pressable accessibilityLabel="Ta bort" onPress={remove} style={styles.headerBtn}>
-            <Icon name="trash" color={colors.today} />
-          </Pressable>
-        ) : (
-          <View style={styles.headerBtn} />
-        )}
-      </View>
+      <ScreenHeader
+        title={editing ? 'Redigera aktivitet' : 'Ny aktivitet'}
+        right={
+          editing && (
+            <Pressable accessibilityLabel="Ta bort" onPress={remove} hitSlop={8}>
+              <Icon name="trash" color={colors.today} />
+            </Pressable>
+          )
+        }
+      />
 
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
@@ -281,14 +279,6 @@ export default function ActivityForm() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 12,
-    paddingTop: 8,
-  },
-  headerBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   content: { padding: 20, gap: 18 },
   field: { gap: 8 },
   input: {
