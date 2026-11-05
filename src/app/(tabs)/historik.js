@@ -3,12 +3,7 @@ import { Alert, Pressable, ScrollView, Share, StyleSheet, Text, TextInput, View 
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '../../components/ui';
-import {
-  availableMonths,
-  buildMonthReport,
-  monthKey,
-  monthLabel,
-} from '../../lib/coachReport';
+import { availableMonths, buildMonthReport, monthKey, monthLabel } from '../../lib/coachReport';
 import { dateKey, dayDate, formatSteps, weekRangeLabel } from '../../lib/week';
 import { useStore } from '../../store/useStore';
 import { colors, radius, type } from '../../theme';
@@ -71,11 +66,11 @@ function CoachCard({ weeks, stepsByDay }) {
       <View style={styles.stats}>
         <View style={styles.stat}>
           <Text style={styles.statValue}>{summary.done}</Text>
-          <Text style={styles.statLabel}>pass gjorda</Text>
+          <Text style={styles.statLabel}>gånger du rört dig</Text>
         </View>
         <View style={styles.stat}>
           <Text style={styles.statValue}>{formatDuration(summary.activeMin)}</Text>
-          <Text style={styles.statLabel}>aktiv tid</Text>
+          <Text style={styles.statLabel}>tid i rörelse</Text>
         </View>
         <View style={styles.stat}>
           <Text style={styles.statValue}>
@@ -136,7 +131,7 @@ export default function HistoryScreen() {
                 <View style={[styles.fill, { width: `${pct * 100}%` }]} />
               </View>
               <Text style={type.small}>
-                {done} av {w.plannedSessions} pass
+                {done} gånger
                 {steps > 0 ? ` · ${formatSteps(steps)} steg` : ''}
                 {w.evaluation ? ` · ${FEELING_LABEL[w.evaluation.feeling]}` : ''}
                 {w.id === currentWeekId ? ' · pågår' : ''}
@@ -146,18 +141,14 @@ export default function HistoryScreen() {
                   ✓ Skickad till coach · {new Date(w.sentToCoachAt).toLocaleDateString('sv-SE')}
                 </Text>
               ) : (
-                <Button
-                  title="Skicka till coach"
-                  variant="outline"
-                  onPress={() => sendWeekToCoach(w.id)}
-                />
+                <Button title="Skicka till coach" variant="outline" onPress={() => sendWeekToCoach(w.id)} />
               )}
             </View>
           );
         })}
         {list.length <= 1 && (
           <Text style={[type.small, { textAlign: 'center', marginTop: 8 }]}>
-            Här samlas dina veckor när du har utvärderat dem.
+            Här samlas dina veckor när du har tittat tillbaka på dem.
           </Text>
         )}
       </ScrollView>

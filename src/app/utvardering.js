@@ -40,7 +40,7 @@ function ToggleRow({ label, value, onChange }) {
 }
 
 function resultText(a) {
-  if (!a.done) return 'Missad'; // mjukas upp i steg 3
+  if (!a.done) return 'Inte den här gången'; // mjukas upp i steg 3
   const mood = MOODS.find((m) => m.value === a.done.mood)?.label;
   if (mood) return mood;
   return a.done.source === 'auto' ? `Auto · ${formatSteps(a.done.steps ?? a.stepGoal)} steg` : 'Manuell';
@@ -97,17 +97,17 @@ export default function EvaluationScreen() {
         <Text style={type.overline}>
           {over ? `Vecka ${week.number} är slut` : `Vecka ${week.number} pågår`}
         </Text>
-        <Text style={[type.display, { fontSize: 32, marginTop: 6 }]}>Hur gick det?</Text>
+        <Text style={[type.display, { fontSize: 32, marginTop: 6 }]}>Hur har veckan känts?</Text>
 
         <View style={styles.stats}>
-          <Stat value={`${done.length}/${week.plannedSessions}`} label="pass klara" accent />
+          <Stat value={`${done.length}/${week.plannedSessions}`} label="gånger du rört dig" accent />
           <Stat
             value={totalSteps >= 10000 ? `${Math.round(totalSteps / 1000)} k` : formatSteps(totalSteps)}
-            label="steg totalt"
+            label="steg i veckan"
           />
           <Stat
             value={minutes >= 60 ? `${Math.floor(minutes / 60)} h ${minutes % 60}` : `${minutes} min`}
-            label="aktiv tid"
+            label="tid i rörelse"
           />
         </View>
 
@@ -127,28 +127,30 @@ export default function EvaluationScreen() {
             );
           })}
           {activities.length === 0 && (
-            <Text style={type.small}>Inga aktiviteter planerades den här veckan.</Text>
+            <Text style={type.small}>Du planerade inga aktiviteter den här veckan, och det är okej.</Text>
           )}
         </View>
 
         <View style={{ gap: 8, marginTop: 18 }}>
-          <Label>Hur kändes veckan?</Label>
+          <Label>Hur kändes veckan i kroppen?</Label>
           <ChoiceRow options={FEELINGS} value={feeling} onChange={changeFeeling} />
         </View>
 
         <View style={styles.adjust}>
           <Text style={styles.adjustTitle}>
-            Justera vecka {isoWeek(addDays(new Date(week.start), 7)).number}
+            Nästa vecka: vecka {isoWeek(addDays(new Date(week.start), 7)).number}
           </Text>
           <View style={styles.toggleRow}>
-            <Text style={{ fontSize: 14, fontWeight: '500', color: colors.ink, flex: 1 }}>Antal pass</Text>
+            <Text style={{ fontSize: 14, fontWeight: '500', color: colors.ink, flex: 1 }}>
+              Hur många gånger vill du röra dig?
+            </Text>
             <View style={{ width: 150 }}>
               <Stepper label="antal pass" value={planned} onChange={setPlanned} min={1} max={14} />
             </View>
           </View>
-          <ToggleRow label="Behåll samma aktiviteter och dagar" value={keep} onChange={setKeep} />
+          <ToggleRow label="Behåll aktiviteterna och dagarna" value={keep} onChange={setKeep} />
           {keep && hasStepActivities && (
-            <ToggleRow label="Höj stegmålen med 10 %" value={raiseGoals} onChange={setRaiseGoals} />
+            <ToggleRow label="Höj stegmålen lite (10 %)" value={raiseGoals} onChange={setRaiseGoals} />
           )}
           {keep && (
             <Text style={type.small}>Du kan flytta, ändra eller ta bort pass i veckovyn efteråt.</Text>
@@ -157,7 +159,7 @@ export default function EvaluationScreen() {
       </ScrollView>
 
       <View style={styles.footer}>
-        <Button title="Starta nästa vecka" onPress={start} />
+        <Button title="Börja nästa vecka" onPress={start} />
       </View>
     </SafeAreaView>
   );

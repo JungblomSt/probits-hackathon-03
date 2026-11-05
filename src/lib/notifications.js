@@ -75,17 +75,17 @@ export async function syncReminders(week, settings) {
 
     schedule(
       at(day, hour, minute),
-      `Dags för ${a.title.toLowerCase()}`,
+      `Lust för ${a.title.toLowerCase()}?`,
       a.mode === 'steps'
-        ? `Mål idag: ${a.stepGoal} steg. Bockas av automatiskt när du är i mål.`
-        : `${a.durationMin} min · ${a.difficulty}. Glöm inte att bocka av!`
+        ? `Om du vill: ${a.stepGoal} steg idag. Appen bockar av när du är där.`
+        : `${a.durationMin} min · ${a.difficulty}. Bocka av när du har gjort det.`
     );
 
     if (eveningBefore) {
       schedule(
         at(addDays(day, -1), settings.eveningBeforeHour, 0),
         `Imorgon: ${a.title}`,
-        `Påminnelse kl ${formatTime(hour, minute)}. Packa det du behöver redan ikväll.`
+        `Påminnelse kl ${formatTime(hour, minute)}. Förbered gärna det du behöver redan ikväll.`
       );
     }
   }
@@ -94,8 +94,8 @@ export async function syncReminders(week, settings) {
   if (settings.evaluationReminder) {
     schedule(
       at(dayDate(week, 6), 19, 0),
-      `Vecka ${week.number} är snart slut`,
-      'Hur gick det? Utvärdera och planera nästa vecka.'
+      `Vecka ${week.number} går snart mot sitt slut`,
+      'Hur har veckan känts? Titta tillbaka och planera nästa.'
     );
   }
 
