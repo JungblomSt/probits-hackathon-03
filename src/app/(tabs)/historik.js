@@ -1,6 +1,7 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { Button } from '../../components/ui';
 import { dateKey, dayDate, formatSteps, weekRangeLabel } from '../../lib/week';
 import { useStore } from '../../store/useStore';
 import { colors, type } from '../../theme';
@@ -11,6 +12,7 @@ export default function HistoryScreen() {
   const weeks = useStore((s) => s.weeks);
   const currentWeekId = useStore((s) => s.currentWeekId);
   const stepsByDay = useStore((s) => s.stepsByDay);
+  const sendWeekToCoach = useStore((s) => s.sendWeekToCoach);
 
   const list = Object.values(weeks).sort((a, b) => (a.start < b.start ? 1 : -1));
 
@@ -18,6 +20,7 @@ export default function HistoryScreen() {
     <SafeAreaView style={styles.screen} edges={['top']}>
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={type.display}>Historik</Text>
+        <Text style={type.small}>Skickningen simuleras; ingen data lämnar enheten.</Text>
         {list.map((w) => {
           const done = w.activities.filter((a) => a.done).length;
           const pct = Math.min(1, done / Math.max(1, w.plannedSessions));
@@ -40,6 +43,17 @@ export default function HistoryScreen() {
                 {w.evaluation ? ` · ${FEELING_LABEL[w.evaluation.feeling]}` : ''}
                 {w.id === currentWeekId ? ' · pågår' : ''}
               </Text>
+              {w.sentToCoachAt ? (
+                <Text style={styles.sentStatus}>
+                  ✓ Skickad till coach · {new Date(w.sentToCoachAt).toLocaleDateString('sv-SE')}
+                </Text>
+              ) : (
+                <Button
+                  title="Skicka till coach"
+                  variant="outline"
+                  onPress={() => sendWeekToCoach(w.id)}
+                />
+              )}
             </View>
           );
         })}
@@ -68,4 +82,5 @@ const styles = StyleSheet.create({
   week: { fontSize: 17, fontWeight: '700', color: colors.ink },
   track: { height: 8, borderRadius: 4, backgroundColor: colors.lineStrong },
   fill: { height: 8, borderRadius: 4, backgroundColor: colors.accent },
+  sentStatus: { color: colors.accentDark, fontSize: 13, fontWeight: '600' },
 });

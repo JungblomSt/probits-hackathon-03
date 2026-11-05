@@ -24,6 +24,10 @@ export default function TabsLayout() {
         options={{ title: 'Historik', tabBarIcon: ({ color }) => <Icon name="chart" color={color} /> }}
       />
       <Tabs.Screen
+        name="coach"
+        options={{ title: 'Coach', tabBarIcon: ({ color }) => <Icon name="chat" color={color} /> }}
+      />
+      <Tabs.Screen
         name="installningar"
         options={{ title: 'Inställningar', tabBarIcon: ({ color }) => <Icon name="settings" color={color} /> }}
       />
