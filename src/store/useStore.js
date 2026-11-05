@@ -79,7 +79,7 @@ export const useStore = create(
         stepsByDay: {},
         stepStatus: 'checking', // sätts av useStepSync, sparas inte
         justCompleted: null, // sparas inte, se partialize
-        settings: { eveningBeforeHour: 20, evaluationReminder: true, why: '', whyAsked: false },
+        settings: { eveningBeforeHour: 20, evaluationReminder: true },
 
         currentWeek: () => get().weeks[get().currentWeekId] ?? null,
 

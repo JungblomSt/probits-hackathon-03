@@ -17,8 +17,8 @@ import { useCurrentWeek, useStore } from '../../store/useStore';
 import { colors, radius, type } from '../../theme';
 
 function metaText(a, isToday, stepsThatDay) {
-  if (a.done?.source === 'auto') return `Klar automatiskt · ${formatSteps(a.done.steps ?? a.stepGoal)} steg`;
-  if (a.done) return 'Markerad klar själv';
+  if (a.done?.source === 'auto') return `Du gick ${formatSteps(a.done.steps ?? a.stepGoal)} steg`;
+  if (a.done) return 'Du gjorde det';
   const parts = [];
   if (isToday) parts.push('Idag');
   if (a.mode === 'steps') {
@@ -61,7 +61,7 @@ function ActivityRow({ activity, week, todayKey, stepsByDay, onToggle }) {
       <Pressable
         accessibilityRole="checkbox"
         accessibilityState={{ checked: !!activity.done }}
-        accessibilityLabel={activity.done ? 'Klar – tryck för att ångra' : 'Markera som klar'}
+        accessibilityLabel={activity.done ? 'Gjort – tryck för att ångra' : 'Markera som gjort'}
         onPress={() => onToggle(activity.id)}
         hitSlop={6}
         style={[styles.check, activity.done && styles.checkDone]}
@@ -100,7 +100,8 @@ export default function WeekScreen() {
           Vecka {week.number} · {weekRangeLabel(week)}
         </Text>
         <Text style={[type.display, { marginTop: 10 }]}>
-          {doneCount} av {week.plannedSessions} pass{'\n'}klara
+          Du har rört dig {'\n'}
+          {doneCount} gånger
         </Text>
 
         <View style={styles.progress}>
@@ -111,8 +112,8 @@ export default function WeekScreen() {
 
         {over && (
           <Pressable style={styles.overBanner} onPress={() => router.push('/utvardering')}>
-            <Text style={styles.overTitle}>Vecka {week.number} är slut</Text>
-            <Text style={styles.overText}>Utvärdera och planera nästa vecka →</Text>
+            <Text style={styles.overTitle}>Vecka {week.number} är över</Text>
+            <Text style={styles.overText}>Se hur veckan kändes och planera nästa →</Text>
           </Pressable>
         )}
 
@@ -122,7 +123,7 @@ export default function WeekScreen() {
           </View>
           <View style={{ flex: 1, gap: 6 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              <Text style={styles.stepsTitle}>Steg idag</Text>
+              <Text style={styles.stepsTitle}>Dina steg idag</Text>
               <Text style={styles.stepsValue}>
                 {formatSteps(todaySteps)}
                 {goal ? ` / ${formatSteps(goal)}` : ''}
@@ -137,7 +138,7 @@ export default function WeekScreen() {
               {stepStatus === 'ok'
                 ? 'Synkas från telefonens stegräknare'
                 : stepStatus === 'denied'
-                  ? 'Ge appen tillgång till rörelsedata i inställningarna'
+                  ? 'Vill du att appen räknar dina steg? Tillåt det i inställningarna.'
                   : stepStatus === 'unavailable'
                     ? 'Stegräknaren finns inte på den här enheten'
                     : 'Ansluter till stegräknaren …'}
@@ -146,9 +147,9 @@ export default function WeekScreen() {
         </View>
 
         <View style={styles.listHeader}>
-          <Text style={type.h2}>Veckans plan</Text>
+          <Text style={type.h2}>Det här vill jag göra</Text>
           <Pressable onPress={() => router.push('/utvardering')} hitSlop={10}>
-            <Text style={styles.link}>Utvärdera</Text>
+            <Text style={styles.link}>Titta tillbaka</Text>
           </Pressable>
         </View>
 
@@ -164,19 +165,19 @@ export default function WeekScreen() {
             />
           ))}
           {activities.length === 0 && (
-            <Text style={styles.empty}>Inga aktiviteter än. Lägg till en eller slumpa fram ett förslag.</Text>
+            <Text style={styles.empty}>
+              Inget planerat än. Lägg till något du har lust med, eller slumpa fram en idé.
+            </Text>
           )}
           {missing > 0 && activities.length > 0 && (
-            <Text style={styles.empty}>
-              Ditt mål är {week.plannedSessions} pass – planera {missing} till.
-            </Text>
+            <Text style={styles.empty}>Det finns plats för {missing} aktiviteter till, om du vill.</Text>
           )}
         </View>
       </ScrollView>
 
       <View style={styles.bottomBar}>
         <Button
-          title="Slumpa aktivitet"
+          title="Förslag på aktivitet"
           icon="dice"
           variant="outline"
           style={{ flex: 1, height: 52 }}

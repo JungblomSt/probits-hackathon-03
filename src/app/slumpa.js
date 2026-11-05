@@ -43,7 +43,7 @@ export default function RandomScreen() {
 
   return (
     <SafeAreaView style={styles.screen}>
-      <ScreenHeader title="Slumpa aktivitet" icon="close" />
+      <ScreenHeader title="Förslag på aktivitet" icon="close" />
 
       <View style={styles.filters}>
         <View style={{ gap: 8 }}>
@@ -94,7 +94,7 @@ export default function RandomScreen() {
 
       <View style={styles.footer}>
         <Button
-          title="Slumpa igen"
+          title="Nytt förslag"
           icon="dice"
           variant="outline"
           style={{ flex: 1 }}
