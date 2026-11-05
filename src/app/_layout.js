@@ -1,3 +1,4 @@
+import CompletionSheet from '../components/CompletionSheet';
 import { Stack } from 'expo-router/stack';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
@@ -52,6 +53,7 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <StatusBar style="dark" />
       <AppEffects />
+      <CompletionSheet />
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bg } }}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="ny-aktivitet" options={{ presentation: 'modal' }} />
