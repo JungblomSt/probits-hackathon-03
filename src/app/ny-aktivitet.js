@@ -19,7 +19,7 @@ import DoneModePicker from '../components/DoneModePicker';
 import ReminderCard from '../components/ReminderCard';
 import { Button, Label, Segmented, Stepper } from '../components/ui';
 import { ensureNotificationPermission } from '../lib/notifications';
-import { weekdayIndex } from '../lib/week';
+import { isWeekOver, weekdayIndex } from '../lib/week';
 import { useCurrentWeek, useStore } from '../store/useStore';
 import { DIFFICULTIES, colors, radius } from '../theme';
 
@@ -54,6 +54,12 @@ export default function ActivityForm() {
   const [eveningBefore, setEveningBefore] = useState(existing?.reminder?.eveningBefore ?? false);
 
   if (!week) return null;
+  const now = new Date();
+  const inThisWeek = now >= new Date(week.start) && !isWeekOver(week, now);
+  const today = weekdayIndex(now);
+  const pastDays = inThisWeek
+    ? [0, 1, 2, 3, 4, 5, 6].filter((d) => d < today && !(editing && d === existing.weekday))
+    : [];
 
   const toggleDay = (i) => {
     if (editing) return setDays([i]); // en aktivitet = en dag
@@ -127,7 +133,7 @@ export default function ActivityForm() {
 
           <View style={styles.field}>
             <Label>{editing ? 'Dag' : 'Dag (välj en eller flera)'}</Label>
-            <DayPicker selected={days} onToggle={toggleDay} />
+            <DayPicker selected={days} onToggle={toggleDay} disabled={pastDays} />
           </View>
 
           <View style={styles.twoCol}>
