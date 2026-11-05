@@ -10,7 +10,6 @@ import { TIME_OPTIONS, filterSuggestions, shuffle } from '../data/suggestions';
 import { formatSteps } from '../lib/week';
 import { DIFFICULTIES, colors, radius } from '../theme';
 
-
 export default function RandomScreen() {
   const [time, setTime] = useState(20);
   const [level, setLevel] = useState('Medel');

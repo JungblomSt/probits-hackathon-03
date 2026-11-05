@@ -18,9 +18,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from '../components/Icon';
 import ScreenHeader from '../components/ScreenHeader';
 import DayPicker from '../components/DayPicker';
+import DoneModePicker from '../components/DoneModePicker';
 import { Button, Card, Label, Segmented, Stepper } from '../components/ui';
 import { ensureNotificationPermission } from '../lib/notifications';
-import { formatSteps, formatTime, weekdayIndex } from '../lib/week';
+import { formatTime, weekdayIndex } from '../lib/week';
 import { useCurrentWeek, useStore } from '../store/useStore';
 import { DIFFICULTIES, colors, radius, type } from '../theme';
 
@@ -40,9 +41,7 @@ export default function ActivityForm() {
   const editing = !!existing;
 
   const [title, setTitle] = useState(existing?.title ?? params.title ?? '');
-  const [days, setDays] = useState(
-    existing ? [existing.weekday] : [weekdayIndex(new Date())]
-  );
+  const [days, setDays] = useState(existing ? [existing.weekday] : [weekdayIndex(new Date())]);
   const [durationMin, setDurationMin] = useState(
     existing?.durationMin ?? (params.durationMin ? Number(params.durationMin) : 30)
   );
@@ -52,9 +51,7 @@ export default function ActivityForm() {
     existing?.stepGoal ?? (params.stepGoal ? Number(params.stepGoal) : 4000)
   );
   const [reminderOn, setReminderOn] = useState(existing ? !!existing.reminder : true);
-  const [time, setTime] = useState(
-    existing?.reminder ?? { hour: 17, minute: 30 }
-  );
+  const [time, setTime] = useState(existing?.reminder ?? { hour: 17, minute: 30 });
   const [eveningBefore, setEveningBefore] = useState(existing?.reminder?.eveningBefore ?? false);
   const [showIosPicker, setShowIosPicker] = useState(false);
 
@@ -173,43 +170,12 @@ export default function ActivityForm() {
 
           <View style={styles.field}>
             <Label>Hur blir den klar?</Label>
-            <Pressable
-              accessibilityRole="radio"
-              accessibilityState={{ checked: mode === 'steps' }}
-              onPress={() => setMode('steps')}
-              style={[styles.option, mode === 'steps' && styles.optionOn]}
-            >
-              <View style={[styles.radio, mode === 'steps' && styles.radioOn]} />
-              <View style={{ flex: 1, gap: 6 }}>
-                <Text style={styles.optionTitle}>Automatiskt via stegräknaren</Text>
-                <Text style={type.small}>Markeras klar när du nått stegmålet den dagen.</Text>
-                {mode === 'steps' && (
-                  <View style={{ marginTop: 4 }}>
-                    <Stepper
-                      label="stegmål"
-                      value={stepGoal}
-                      onChange={setStepGoal}
-                      step={500}
-                      min={500}
-                      max={40000}
-                      format={(v) => `${formatSteps(v)} steg`}
-                    />
-                  </View>
-                )}
-              </View>
-            </Pressable>
-            <Pressable
-              accessibilityRole="radio"
-              accessibilityState={{ checked: mode === 'manual' }}
-              onPress={() => setMode('manual')}
-              style={[styles.option, mode === 'manual' && styles.optionOn]}
-            >
-              <View style={[styles.radio, mode === 'manual' && styles.radioOn]} />
-              <View style={{ flex: 1, gap: 2 }}>
-                <Text style={styles.optionTitle}>Jag bockar av själv</Text>
-                <Text style={type.small}>För yoga, simning, styrka …</Text>
-              </View>
-            </Pressable>
+            <DoneModePicker
+              mode={mode}
+              onModeChange={setMode}
+              stepGoal={stepGoal}
+              onStepGoalChange={setStepGoal}
+            />
           </View>
 
           <Card style={{ gap: 12 }}>
@@ -242,7 +208,13 @@ export default function ActivityForm() {
                   </Pressable>
                 </View>
                 {showIosPicker && Platform.OS === 'ios' && (
-                  <DateTimePicker value={pickerDate()} mode="time" display="spinner" onChange={onPickTime} locale="sv-SE" />
+                  <DateTimePicker
+                    value={pickerDate()}
+                    mode="time"
+                    display="spinner"
+                    onChange={onPickTime}
+                    locale="sv-SE"
+                  />
                 )}
               </>
             )}
@@ -251,10 +223,7 @@ export default function ActivityForm() {
       </KeyboardAvoidingView>
 
       <View style={styles.footer}>
-        <Button
-          title={editing ? 'Spara' : `Lägg till i vecka ${week.number}`}
-          onPress={save}
-        />
+        <Button title={editing ? 'Spara' : `Lägg till i vecka ${week.number}`} onPress={save} />
       </View>
     </SafeAreaView>
   );
@@ -275,19 +244,7 @@ const styles = StyleSheet.create({
     color: colors.ink,
   },
   twoCol: { flexDirection: 'row', gap: 12 },
-  option: {
-    flexDirection: 'row',
-    gap: 12,
-    padding: 14,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: colors.lineStrong,
-    backgroundColor: colors.card,
-  },
-  optionOn: { borderWidth: 2, borderColor: colors.accent },
   optionTitle: { fontSize: 15, fontWeight: '600', color: colors.ink },
-  radio: { width: 22, height: 22, borderRadius: 11, borderWidth: 2, borderColor: '#A9B0A3', marginTop: 1 },
-  radioOn: { borderWidth: 6, borderColor: colors.accent },
   reminderHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   pill: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 12, backgroundColor: colors.soft },
   pillOn: { backgroundColor: colors.accentSoft },
