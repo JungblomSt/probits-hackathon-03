@@ -18,7 +18,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from '../components/Icon';
 import ScreenHeader from '../components/ScreenHeader';
 import { Button, Card, Label, Segmented, Stepper } from '../components/ui';
-import { askNotificationPermission } from '../lib/notifications';
+import { ensureNotificationPermission } from '../lib/notifications';
 import { WEEKDAY_LETTERS, WEEKDAYS, formatSteps, formatTime, weekdayIndex } from '../lib/week';
 import { useCurrentWeek, useStore } from '../store/useStore';
 import { DIFFICULTIES, colors, radius, type } from '../theme';
@@ -83,17 +83,14 @@ export default function ActivityForm() {
   };
 
   const toggleReminder = async (on) => {
-    if (on && !(await askNotificationPermission())) {
-      Alert.alert('Notiser är avstängda', 'Slå på notiser för Rörelseplan i telefonens inställningar.');
-      return;
-    }
+    if (on && !(await ensureNotificationPermission())) return;
     setReminderOn(on);
   };
 
   const save = async () => {
     if (!title.trim()) return Alert.alert('Ge aktiviteten ett namn');
     if (days.length === 0) return Alert.alert('Välj minst en dag');
-    if (reminderOn) await askNotificationPermission();
+    const reminderAllowed = reminderOn && (await ensureNotificationPermission());
 
     const data = {
       title: title.trim(),
@@ -101,7 +98,7 @@ export default function ActivityForm() {
       difficulty,
       mode,
       stepGoal,
-      reminder: reminderOn ? { ...time, eveningBefore } : null,
+      reminder: reminderAllowed ? { ...time, eveningBefore } : null,
     };
 
     if (editing) updateActivity(existing.id, { ...data, weekday: days[0] });
