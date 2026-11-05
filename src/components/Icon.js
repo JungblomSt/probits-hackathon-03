@@ -35,6 +35,14 @@ const shapes = {
     </>
   ),
   chart: (c) => <Path d="M4 20V10M10 20V4M16 20v-7M22 20H2" stroke={c} />,
+  chat: (c) => (
+    <>
+      <Path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H6l-3 2v-5.5A7.5 7.5 0 1 1 20 11.5Z" stroke={c} />
+      <Circle cx="8" cy="11.5" r="0.8" fill={c} />
+      <Circle cx="12" cy="11.5" r="0.8" fill={c} />
+      <Circle cx="16" cy="11.5" r="0.8" fill={c} />
+    </>
+  ),
   settings: (c) => (
     <>
       <Circle cx="12" cy="12" r="3" stroke={c} />

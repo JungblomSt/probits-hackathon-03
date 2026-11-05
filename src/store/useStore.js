@@ -93,6 +93,18 @@ export const useStore = create(
         removeActivity: (id) =>
           updateCurrent((w) => ({ ...w, activities: w.activities.filter((a) => a.id !== id) })),
 
+        sendWeekToCoach: (weekId) =>
+          set((s) => {
+            const week = s.weeks[weekId];
+            if (!week || week.sentToCoachAt) return s;
+            return {
+              weeks: {
+                ...s.weeks,
+                [weekId]: { ...week, sentToCoachAt: new Date().toISOString() },
+              },
+            };
+          }),
+
         toggleDone: (id) =>
           updateCurrent((w) => ({
             ...w,
