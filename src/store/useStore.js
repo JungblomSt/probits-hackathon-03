@@ -43,12 +43,19 @@ function autoComplete(week, stepsByDay) {
     const steps = stepsByDay[dateKey(dayDate(week, a.weekday))] ?? 0;
     if (steps >= a.stepGoal) {
       changed = true;
-      return { ...a, done: { source: 'auto', at: new Date().toISOString(), steps } };
+      return {
+        ...a,
+        done: { source: 'auto', at: new Date().toISOString(), steps },
+      };
     }
     return a;
   });
   return changed ? { ...week, activities } : week;
 }
+
+// Hittar aktivitet som precis blivit klar
+const newlyDone = (prev, next) =>
+  next.activities.find((a) => a.done && !prev.activities.find((p) => p.id === a.id)?.done);
 
 export const useStore = create(
   persist(
@@ -59,7 +66,11 @@ export const useStore = create(
           const cur = s.weeks[s.currentWeekId];
           if (!cur) return s;
           const next = autoComplete(fn(cur), s.stepsByDay);
-          return { weeks: { ...s.weeks, [cur.id]: next } };
+          const finished = newlyDone(cur, next);
+          return {
+            weeks: { ...s.weeks, [cur.id]: next },
+            ...(finished && { justCompleted: finished.id }),
+          };
         });
 
       return {
@@ -67,7 +78,8 @@ export const useStore = create(
         currentWeekId: null,
         stepsByDay: {},
         stepStatus: 'checking', // sätts av useStepSync, sparas inte
-        settings: { eveningBeforeHour: 20, evaluationReminder: true },
+        justCompleted: null, // sparas inte, se partialize
+        settings: { eveningBeforeHour: 20, evaluationReminder: true, why: '', whyAsked: false },
 
         currentWeek: () => get().weeks[get().currentWeekId] ?? null,
 
@@ -75,13 +87,24 @@ export const useStore = create(
           const { weeks, currentWeekId } = get();
           if (currentWeekId && weeks[currentWeekId]) return;
           const week = makeWeek(new Date(), 3);
-          set({ weeks: { ...weeks, [week.id]: week }, currentWeekId: week.id });
+          set({
+            weeks: { ...weeks, [week.id]: week },
+            currentWeekId: week.id,
+          });
         },
 
         addActivity: (data) =>
           updateCurrent((w) => ({
             ...w,
-            activities: [...w.activities, { ...data, id: newId(), done: null, skipAuto: false }],
+            activities: [
+              ...w.activities,
+              {
+                ...data,
+                id: newId(),
+                done: null,
+                skipAuto: false,
+              },
+            ],
           })),
 
         updateActivity: (id, data) =>
@@ -91,7 +114,10 @@ export const useStore = create(
           })),
 
         removeActivity: (id) =>
-          updateCurrent((w) => ({ ...w, activities: w.activities.filter((a) => a.id !== id) })),
+          updateCurrent((w) => ({
+            ...w,
+            activities: w.activities.filter((a) => a.id !== id),
+          })),
 
         sendWeekToCoach: (weekId) =>
           set((s) => {
@@ -100,7 +126,10 @@ export const useStore = create(
             return {
               weeks: {
                 ...s.weeks,
-                [weekId]: { ...week, sentToCoachAt: new Date().toISOString() },
+                [weekId]: {
+                  ...week,
+                  sentToCoachAt: new Date().toISOString(),
+                },
               },
             };
           }),
@@ -110,13 +139,37 @@ export const useStore = create(
             ...w,
             activities: w.activities.map((a) => {
               if (a.id !== id) return a;
-              if (a.done) return { ...a, done: null, skipAuto: a.done.source === 'auto' };
-              return { ...a, done: { source: 'manual', at: new Date().toISOString() } };
+              if (a.done)
+                return {
+                  ...a,
+                  done: null,
+                  skipAuto: a.done.source === 'auto',
+                };
+              return {
+                ...a,
+                done: {
+                  source: 'manual',
+                  at: new Date().toISOString(),
+                },
+              };
             }),
           })),
 
+        dismissCompleted: () => set({ justCompleted: null }),
+
+        setMood: (id, mood) =>
+          updateCurrent((w) => ({
+            ...w,
+            activities: w.activities.map((a) =>
+              a.id === id && a.done ? { ...a, done: { ...a.done, mood } } : a
+            ),
+          })),
+
         setPlannedSessions: (n) =>
-          updateCurrent((w) => ({ ...w, plannedSessions: Math.max(1, Math.min(14, n)) })),
+          updateCurrent((w) => ({
+            ...w,
+            plannedSessions: Math.max(1, Math.min(14, n)),
+          })),
 
         setSteps: (key, steps) =>
           set((s) => {
@@ -126,7 +179,13 @@ export const useStore = create(
             for (const k of Object.keys(stepsByDay)) if (k < cutoff) delete stepsByDay[k];
             const cur = s.weeks[s.currentWeekId];
             if (!cur) return { stepsByDay };
-            return { stepsByDay, weeks: { ...s.weeks, [cur.id]: autoComplete(cur, stepsByDay) } };
+            const next = autoComplete(cur, stepsByDay);
+            const finished = newlyDone(cur, next);
+            return {
+              stepsByDay,
+              weeks: { ...s.weeks, [cur.id]: next },
+              ...(finished && { justCompleted: finished.id }),
+            };
           }),
 
         updateSettings: (data) => set((s) => ({ settings: { ...s.settings, ...data } })),
@@ -146,9 +205,7 @@ export const useStore = create(
                 done: null,
                 skipAuto: false,
                 stepGoal:
-                  raiseGoals && a.mode === 'steps'
-                    ? Math.round((a.stepGoal * 1.1) / 100) * 100
-                    : a.stepGoal,
+                  raiseGoals && a.mode === 'steps' ? Math.round((a.stepGoal * 1.1) / 100) * 100 : a.stepGoal,
               }))
             : [];
 
@@ -156,7 +213,13 @@ export const useStore = create(
           set({
             weeks: {
               ...weeks,
-              [old.id]: { ...old, evaluation: { feeling, at: new Date().toISOString() } },
+              [old.id]: {
+                ...old,
+                evaluation: {
+                  feeling,
+                  at: new Date().toISOString(),
+                },
+              },
               [next.id]: next,
             },
             currentWeekId: next.id,
@@ -170,6 +233,11 @@ export const useStore = create(
     {
       name: 'rorelseplan',
       version: 1,
+      merge: (persisted, current) => ({
+        ...current,
+        ...persisted,
+        settings: { ...current.settings, ...persisted?.settings },
+      }),
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (s) => ({
         weeks: s.weeks,

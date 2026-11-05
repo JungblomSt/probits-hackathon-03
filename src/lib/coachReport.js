@@ -3,9 +3,27 @@
 import { addDays, dateKey, dayDate, formatSteps, WEEKDAYS, weekRangeLabel } from './week';
 
 export const MONTH_NAMES = [
-  'januari', 'februari', 'mars', 'april', 'maj', 'juni',
-  'juli', 'augusti', 'september', 'oktober', 'november', 'december',
+  'januari',
+  'februari',
+  'mars',
+  'april',
+  'maj',
+  'juni',
+  'juli',
+  'augusti',
+  'september',
+  'oktober',
+  'november',
+  'december',
 ];
+
+const MOOD_TEXT = {
+  glad: 'glad',
+  energi: 'full av energi',
+  lugn: 'lugn',
+  nojd: 'trött men nöjd',
+  tungt: 'tungt',
+};
 
 const FEELING_TEXT = { lätt: 'för lätt', lagom: 'lagom', tufft: 'för tufft' };
 
@@ -29,7 +47,10 @@ export function availableMonths(weeks) {
     const m = monthOfWeek(w);
     map[monthKey(m)] = m;
   }
-  return Object.keys(map).sort().reverse().map((k) => map[k]);
+  return Object.keys(map)
+    .sort()
+    .reverse()
+    .map((k) => map[k]);
 }
 
 function formatDuration(min) {
@@ -90,6 +111,7 @@ export function buildMonthReport(weeks, stepsByDay, { year, month }) {
         const mark = a.done ? '✓' : '–';
         let row = `  ${mark} ${WEEKDAYS[a.weekday]}: ${a.title}, ${a.durationMin} min`;
         if (a.done?.steps) row += ` (${formatSteps(a.done.steps)} steg)`;
+        if (a.done?.mood) row += ` · kändes ${MOOD_TEXT[a.done.mood]}`;
         if (!a.done) row += ' (blev inte av)';
         lines.push(row);
       }
