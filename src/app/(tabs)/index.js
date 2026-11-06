@@ -149,7 +149,7 @@ export default function WeekScreen() {
         <View style={styles.listHeader}>
           <Text style={type.h2}>Det här vill jag göra</Text>
           <Pressable onPress={() => router.push('/utvardering')} hitSlop={10}>
-            <Text style={styles.link}>Titta tillbaka</Text>
+            <Text style={styles.link}>Översikt</Text>
           </Pressable>
         </View>
 
