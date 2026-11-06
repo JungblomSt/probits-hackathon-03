@@ -40,7 +40,7 @@ function ToggleRow({ label, value, onChange }) {
 }
 
 function resultText(a) {
-  if (!a.done) return 'Inte den här gången'; // mjukas upp i steg 3
+  if (!a.done) return '-'; // mjukas upp i steg 3
   const mood = MOODS.find((m) => m.value === a.done.mood)?.label;
   if (mood) return mood;
   return a.done.source === 'auto' ? `Auto · ${formatSteps(a.done.steps ?? a.stepGoal)} steg` : 'Manuell';
@@ -100,7 +100,7 @@ export default function EvaluationScreen() {
         <Text style={[type.display, { fontSize: 32, marginTop: 6 }]}>Hur har veckan känts?</Text>
 
         <View style={styles.stats}>
-          <Stat value={`${done.length}/${week.plannedSessions}`} label="gånger du rört dig" accent />
+                    <Stat value={`${done.length}`} label="gånger du rört dig" accent />
           <Stat
             value={totalSteps >= 10000 ? `${Math.round(totalSteps / 1000)} k` : formatSteps(totalSteps)}
             label="steg i veckan"
