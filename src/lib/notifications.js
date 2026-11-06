@@ -1,5 +1,5 @@
 import * as Notifications from 'expo-notifications';
-import { Platform } from 'react-native';
+import { Alert, Linking, Platform } from 'react-native';
 
 import { addDays, dayDate, formatTime } from './week';
 
@@ -34,6 +34,18 @@ export async function askNotificationPermission() {
   if (!current.canAskAgain) return false;
   const { granted } = await Notifications.requestPermissionsAsync();
   return granted;
+}
+
+// Frågar om lov och förklarar för användaren om notis är avstängda
+export async function ensureNotificationPermission() {
+  const ok = await askNotificationPermission();
+  if (!ok) {
+    Alert.alert('Notiser är avstängda', 'Slå på notiser för Rörelseplan i telefonens inställningar.', [
+      { text: 'Inte nu', style: 'cancel' },
+      { text: 'Öppna inställningar', onPress: () => Linking.openSettings() },
+    ]);
+  }
+  return ok;
 }
 
 function at(date, hour, minute) {

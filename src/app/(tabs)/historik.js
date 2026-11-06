@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '../../components/ui';
 import { availableMonths, buildMonthReport, monthKey, monthLabel } from '../../lib/coachReport';
-import { dateKey, dayDate, formatSteps, weekRangeLabel } from '../../lib/week';
+import { dateKey, dayDate, formatSteps, isWeekOver, weekRangeLabel } from '../../lib/week';
 import { useStore } from '../../store/useStore';
 import { colors, radius, type } from '../../theme';
 
@@ -89,7 +89,7 @@ function CoachCard({ weeks, stepsByDay }) {
         style={styles.input}
       />
 
-      <Button title="Dela månaden" icon="share" onPress={share} />
+      <Button title="Dela" icon="share" variant="outline" onPress={share} />
       <Text style={styles.coachHint}>
         Du väljer själv hur du skickar, till exempel sms eller mejl. Inget delas förrän du trycker.
       </Text>
@@ -102,6 +102,13 @@ export default function HistoryScreen() {
   const currentWeekId = useStore((s) => s.currentWeekId);
   const stepsByDay = useStore((s) => s.stepsByDay);
   const sendWeekToCoach = useStore((s) => s.sendWeekToCoach);
+
+  // Pågående vecka: fråga först, eftersom coachen bara ser det som hänt hittills
+  const confirmEarlySend = (w) =>
+    Alert.alert('Veckan pågår', 'Coachen får bara se det du gjort hittills. Vill du skicka ändå?', [
+      { text: 'Avbryt', style: 'cancel' },
+      { text: 'Skicka', onPress: () => sendWeekToCoach(w.id) },
+    ]);
 
   const list = Object.values(weeks).sort((a, b) => (a.start < b.start ? 1 : -1));
 
@@ -140,8 +147,13 @@ export default function HistoryScreen() {
                 <Text style={styles.sentStatus}>
                   ✓ Skickad till coach · {new Date(w.sentToCoachAt).toLocaleDateString('sv-SE')}
                 </Text>
+              ) : isWeekOver(w) ? (
+                <Button title="Skicka till coach" onPress={() => sendWeekToCoach(w.id)} />
               ) : (
-                <Button title="Skicka till coach" variant="outline" onPress={() => sendWeekToCoach(w.id)} />
+                <>
+                  <Text style={type.small}>Veckan pågår. Bäst är att skicka den när den är slut.</Text>
+                  <Button title="Skicka ändå" variant="outline" onPress={() => confirmEarlySend(w)} />
+                </>
               )}
             </View>
           );
