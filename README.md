@@ -1,5 +1,8 @@
 # Rörelseplan
 
+<img width="639" height="400" alt="Rörelseplan - planera och genomför" src="https://github.com/user-attachments/assets/fd450cf4-1658-495a-838a-b11791e9f40e" />
+<img width="626" height="394" alt="Följ upp och dela" src="https://github.com/user-attachments/assets/9f8621b9-e133-4696-b5b7-231b0600777b" />
+
 En app som hjälper dig att planera, genomföra och följa upp vardagsrörelse, en vecka i taget. Byggd under Probits hackathon - Lag 03.
 
 ## Idé
