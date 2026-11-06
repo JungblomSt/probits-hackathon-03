@@ -1,52 +1,110 @@
 # Rörelseplan
 
-En todo-app för rörelse och aktivitet. Appen är byggd i React Native (Expo, JavaScript) med expo-router.
+En app som hjälper dig att planera, genomföra och följa upp vardagsrörelse, en vecka i taget. Byggd under Probits hackathon - Lag 03.
 
-Så används den:
+## Idé
 
-- **Planera veckan.** Sätt ett mål för hur många pass du vill göra. Lägg sedan till aktiviteter på valfria dagar.
-- **Bocka av.** Det finns två sätt:
-  - Koppla aktiviteten till stegräknaren. Då bockas den av automatiskt när dagens steg når målet.
-  - Bocka av själv.
-- **Påminnelser.** Välj klockslag för varje aktivitet och om du vill ha en extra notis kvällen innan. Söndag kl 19:00 kommer en påminnelse om att utvärdera veckan.
-- **Slumpa aktivitet.** Välj hur mycket tid du har och hur tufft det får vara, så får du ett förslag som du kan lägga till direkt.
-- **Utvärdera.** När veckan är slut ser du vad du gjort och svarar på hur veckan kändes. Därefter justerar du nästa vecka: antal pass, om aktiviteterna ska vara kvar och om stegmålen ska höjas med 10 %.
+Många vill röra sig mer men tappar bort det i vardagen. Stora träningsappar fokuserar ofta på prestation och kan kännas krävande. Rörelseplan är tvärtom: en enkel veckoplan för rörelse där du själv bestämmer vad du vill göra, får en vänlig påminnelse, bockar av (eller låter stegräknaren göra det) och tittar tillbaka på veckan.
 
-## Kom igång
+Appen är tänkt som ett stöd mellan träffar med en hälsocoach och stöd för egen reflektion och motivation. Du äger din data och väljer själv vad och när du delar.
 
-```bash
-npm install
-npx expo start
-```
+## Användarbehov
 
-Skanna QR-koden med Expo Go, eller kör `npx expo run:ios` / `npx expo run:android` för en development build.
+| Användaren behöver … | Så löser appen det |
+| --- | --- |
+| veta vad den ska göra och när | Veckoplan med aktiviteter på valda dagar och ett mål för antal pass |
+| komma ihåg det | Påminnelse vid valt klockslag, och om man vill även kvällen innan |
+| slippa registrera allt själv | Stegaktiviteter bockas av automatiskt när dagens stegmål nås |
+| få idéer när motivationen tryter | "Förslag på aktivitet" utifrån tid och svårighetsgrad |
+| se att det går framåt | Framstegsmätare i veckovyn, historik per vecka och sammanställning per månad |
+| justera när planen inte passar | Veckoutvärdering: kändes veckan för lätt, lagom eller för tuff? Nästa vecka anpassas efter svaret |
+| stöd från en coach utan att lämna ifrån sig kontrollen | Månadsrapport som delas via sms eller mejl först när användaren själv trycker |
 
-> **Tips:** Stegräknaren behöver en riktig telefon. Den fungerar inte i simulatorn eller emulatorn.
+## Metodkoppling
 
-## Struktur
+Appens funktioner bygger på etablerade beteendeförändringstekniker (BCT, Michie m.fl.) och på självbestämmandeteori (SDT).
+
+| Teknik | I appen |
+| --- | --- |
+| Målsättning och handlingsplan | Veckans mål i antal pass, med konkreta aktiviteter, dagar och tider |
+| Självmonitorering | Avbockning, stegräkning och veckans framstegsmätare |
+| Påminnelser och triggers | Notis vid passet, kvällen innan och söndag kväll för utvärdering |
+| Återkoppling | "Fint att du rörde på dig", statistik i utvärdering och historik |
+| Utvärdering och omprövning av mål | Veckoutvärderingen föreslår fler eller färre pass och höjda stegmål |
+| Gradvis ökning | Stegmålen kan höjas 10 % i taget när veckan kändes lätt |
+| Socialt stöd | Rapport och chatt med hälsocoach |
+
+**Självbestämmande:** Texterna är skrivna för att stärka känslan av eget val, till exempel "Lust för en promenad?" och "om du vill" i stället för krav. Missade pass visas som "inte den här gången" utan skuld. Användaren styr själv vad som delas med coachen.
+
+## Teknik
+
+- **React Native med Expo** (SDK 58), JavaScript
+- **Expo Router** för navigering (flikar och modaler)
+- **Zustand** för state, sparat lokalt med **AsyncStorage**. Ingen backend, all data stannar på enheten.
+- **expo-sensors** (Pedometer) för stegräkning
+- **expo-notifications** för lokala, schemalagda påminnelser
+- **react-native-svg** för ikoner
+
+### Struktur
 
 ```
 src/
   app/                    skärmar (expo-router)
     _layout.js            root: laddar data, synkar steg och notiser
     (tabs)/index.js       veckovy
-    (tabs)/historik.js
+    (tabs)/historik.js    historik och delning med coach
+    (tabs)/coach.js       coachchatt (platshållare)
     (tabs)/installningar.js
-    ny-aktivitet.js       skapa/redigera (?id=)
-    slumpa.js             slumpa förslag
+    ny-aktivitet.js       skapa/redigera aktivitet (?id=)
+    slumpa.js             förslag på aktivitet
     utvardering.js        veckoutvärdering
-  components/             Icon (svg) och UI-komponenter
-  data/suggestions.js     förslag för slumpknappen
+  components/             återanvändbara UI-komponenter
+  data/                   aktivitetsförslag och humörval
   lib/week.js             ISO-veckor och datumhjälp
   lib/notifications.js    schemalägger påminnelser
   lib/useStepSync.js      läser stegräknaren
-  store/useStore.js       zustand-store, sparas i AsyncStorage
-  theme.js                färger och typografi från mockupen
+  lib/coachReport.js      bygger månadsrapporten
+  store/useStore.js       zustand-store
+  theme.js                färger och typografi
 ```
 
-## Bra att veta
+## Testa lösningen
 
-- **Stegräknare på iOS.** Appen läser stegen för varje dag i veckan via `Pedometer.getStepCountAsync`. Därför bockas pass av även om appen var stängd under dagen, så länge du öppnar appen innan veckan är slut.
-- **Stegräknare på Android.** Expo har ingen historik här, bara `watchStepCount`. Det betyder att steg bara räknas medan appen är öppen. För riktig automatik behöver nästa steg vara Health Connect, till exempel med `react-native-health-connect` i en development build.
-- **Notiser.** Notiserna läggs om varje gång veckan ändras. Det är bara aktuell veckas notiser som är schemalagda.
-- **Ångra automatisk avbockning.** Om du ångrar en aktivitet som bockades av automatiskt bockas den inte av igen automatiskt den veckan.
+### Starta appen
+
+Kräver Node.js 20 eller senare och appen **Expo Go** på en telefon.
+
+```bash
+git clone https://github.com/JungblomSt/probits-hackathon-03.git
+cd probits-hackathon-03
+npm install
+npx expo start
+```
+
+Skanna QR-koden med kameran (iPhone) eller med Expo Go (Android). Datorn och telefonen behöver vara på samma nätverk. Fungerar det inte, prova `npx expo start --tunnel`.
+
+> **Använd en riktig telefon.** Stegräknaren fungerar inte i simulator eller emulator. Webbversionen (`npx expo start --web`) går att använda för att titta på gränssnittet, men stegräknare, notiser och bekräftelsedialoger fungerar inte där.
+
+### Testscenarier
+
+1. **Planera veckan.** Tryck på **+**, ge aktiviteten ett namn, välj en eller flera dagar och tryck "Lägg till". Aktiviteterna visas i veckovyn, sorterade per dag.
+2. **Bocka av själv.** Tryck på cirkeln till höger om en aktivitet. Ett kort frågar hur det kändes. Välj ett humör eller "Inte nu".
+3. **Automatisk avbockning.** Skapa en aktivitet för idag, välj "Automatiskt via stegräknaren" och sätt ett lågt stegmål (t.ex. 500). Gå en sväng med telefonen. Aktiviteten bockas av när målet nås.
+   *Android:* steg räknas bara medan appen är öppen.
+4. **Påminnelse.** Slå på påminnelse för en aktivitet idag och välj en tid ett par minuter fram. Godkänn notiser och lås telefonen.
+5. **Förslag på aktivitet.** Tryck "Förslag på aktivitet", välj tid och svårighet, bläddra med "Nytt förslag" och tryck "Lägg till". Formuläret är då förifyllt.
+6. **Utvärdera veckan.** Tryck "Översikt" i veckovyn. Välj hur veckan kändes och se hur förslaget för nästa vecka ändras.
+7. **Dela med coach.** Gå till fliken **Historik**, skriv eventuellt en hälsning och tryck "Dela". Rapporten öppnas i telefonens delningsmeny.
+8. **Börja om.** Under **Inställningar → Rensa all data** återställs appen.
+
+## Kända begränsningar
+
+- **Android och steghistorik:** Expo saknar steghistorik på Android, så steg räknas bara medan appen är öppen. Nästa steg vore Health Connect.
+- **Coachen:** Chatten och "Skicka till coach" är en lokal demo. Ingen data lämnar telefonen, förutom den rapport användaren själv delar.
+- **Veckobyte:** En ny vecka skapas först när den gamla har utvärderats.
+- **Webb:** Bekräftelsedialoger (`Alert.alert`) visas inte i webbläsaren.
+
+## Licens
+
+MIT
+
